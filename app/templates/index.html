@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio — Sistema de Incidencias{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="display-5 fw-bold mb-3">Sistema de Registro de Incidencias</h1>
+        <p class="lead text-muted mb-4">
+            Reporta problemas internos, haz seguimiento de su estado y mantén a tu equipo informado.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('incidencias.nueva') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>Reportar incidencia
+            </a>
+            <a href="{{ url_for('admin.panel') }}" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-grid me-2"></i>Panel de administración
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
