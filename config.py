@@ -6,11 +6,14 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
-    # psycopg3: usa el prefijo postgresql+psycopg://
-    _db_url = os.environ.get("DATABASE_URL", "postgresql+psycopg://user:password@localhost/incidencias_db")
-    # Railway inyecta URLs con prefijo "postgresql://" — lo corregimos si es necesario
-    if _db_url.startswith("postgresql://") and "+psycopg" not in _db_url:
-        _db_url = _db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    _db_url = os.environ.get("DATABASE_URL")
+    if _db_url:
+        # Railway inyecta URLs con prefijo "postgresql://" 
+        if _db_url.startswith("postgresql://") and "+psycopg" not in _db_url:
+            _db_url = _db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    else:
+        # Fallback a SQLite para desarrollo local
+        _db_url = "sqlite:///incidencias.db"
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
