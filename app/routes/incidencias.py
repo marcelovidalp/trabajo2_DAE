@@ -40,5 +40,5 @@ def nueva():
 
 @incidencias_bp.route("/<int:id>")
 def detalle(id):
-    incidencia = Incidencia.query.get_or_404(id)
+    incidencia = Incidencia.query.get_or_404(id, 'No se pudo obtener el id para detalle')
     return render_template("incidencias/detalle.html", incidencia=incidencia)
