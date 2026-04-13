@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Áreas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Gestión de Áreas</h2>
+    <a href="{{ url_for('admin.panel') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Volver al panel
+    </a>
+</div>
+
+<div class="row g-4">
+
+    <!-- Formulario nueva area -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-plus-circle me-2"></i>Nueva área
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Ej: Tecnología" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email del responsable <span class="text-danger">*</span></label>
+                        <input type="email" name="email_responsable" class="form-control" placeholder="responsable@empresa.com" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-save me-2"></i>Guardar área
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de areas existentes -->
+    <div class="col-md-8">
+        {% if areas %}
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <i class="bi bi-diagram-3 me-2"></i>Áreas registradas
+                <span class="badge bg-secondary ms-2">{{ areas|length }}</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email responsable</th>
+                            <th>Incidencias</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for area in areas %}
+                        <tr>
+                            <td class="fw-semibold">{{ area.nombre }}</td>
+                            <td class="text-muted">{{ area.email_responsable }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'danger' if area.incidencias|length > 0 else 'secondary' }}">
+                                    {{ area.incidencias|length }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <form method="POST" action="{{ url_for('admin.eliminar_area', id=area.id) }}"
+                                      onsubmit="return confirm('¿Eliminar el área {{ area.nombre }}?')">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                            {% if area.incidencias %}disabled title="Tiene incidencias asociadas"{% endif %}>
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>No hay áreas registradas aún. Crea la primera usando el formulario.
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
