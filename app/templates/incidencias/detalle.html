@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Incidencia #{{ incidencia.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+        <i class="bi bi-ticket-detailed me-2"></i>Incidencia #{{ incidencia.id }}
+    </h2>
+    <div>
+        <a href="{{ url_for('admin.panel') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Volver al panel
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 text-primary">{{ incidencia.titulo }}</h4>
+                <span class="badge bg-primary fs-6">{{ incidencia.estado|title }}</span>
+            </div>
+            <div class="card-body">
+                <h6 class="text-muted fw-bold mb-3"><i class="bi bi-body-text me-2"></i>Descripción</h6>
+                <p class="mb-0" style="white-space: pre-wrap;">{{ incidencia.descripcion }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-light">
+                <i class="bi bi-info-circle me-2"></i>Detalles
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Prioridad</span>
+                        <span class="badge bg-{% if incidencia.prioridad == 'critica' %}danger{% elif incidencia.prioridad == 'alta' %}warning text-dark{% elif incidencia.prioridad == 'media' %}info text-dark{% else %}secondary{% endif %}">
+                            {{ incidencia.prioridad|title }}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Categoría</span>
+                        <span class="fw-medium">{{ incidencia.categoria }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Área Asignada</span>
+                        <span class="fw-medium">{{ incidencia.area.nombre if incidencia.area else '— Sin área —' }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Fecha de reporte</span>
+                        <span class="fw-medium">{{ incidencia.fecha_creacion.strftime('%d/%m/%Y %H:%M') if incidencia.fecha_creacion else '—' }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <i class="bi bi-person-badge me-2"></i>Información del Reportante
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <p class="mb-1 text-muted small text-uppercase fw-bold">Nombre completo</p>
+                        <p class="mb-0 fs-5">{{ incidencia.reportado_por }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small text-uppercase fw-bold">Correo electrónico</p>
+                        <p class="mb-0 fs-5">
+                            <a href="mailto:{{ incidencia.email_reportante }}" class="text-decoration-none">
+                                <i class="bi bi-envelope me-1"></i>{{ incidencia.email_reportante }}
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
