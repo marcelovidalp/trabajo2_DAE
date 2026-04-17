@@ -6,19 +6,27 @@
 <h2 class="mb-4">Panel de Administración</h2>
 
 <form method="GET" class="row g-2 mb-4">
-    <div class="col-md-3">
+    <div class="col-md-2">
         <select name="estado" class="form-select">
             <option value="">Todos los estados</option>
             {% for e in estados %}
-            <option value="{{ e }}" {% if request.args.get('estado') == e %}selected{% endif %}>{{ e|title }}</option>
+            <option value="{{ e }}" {% if request.args.get('estado') == e %}selected{% endif %}>{{ e|replace('_',' ')|title }}</option>
             {% endfor %}
         </select>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <select name="prioridad" class="form-select">
             <option value="">Todas las prioridades</option>
             {% for p in prioridades %}
             <option value="{{ p }}" {% if request.args.get('prioridad') == p %}selected{% endif %}>{{ p|title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="categoria" class="form-select">
+            <option value="">Todas las categorías</option>
+            {% for c in categorias %}
+            <option value="{{ c }}" {% if request.args.get('categoria') == c %}selected{% endif %}>{{ c|capitalize }}</option>
             {% endfor %}
         </select>
     </div>
@@ -30,7 +38,7 @@
             {% endfor %}
         </select>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <button type="submit" class="btn btn-primary w-100">Filtrar</button>
     </div>
 </form>

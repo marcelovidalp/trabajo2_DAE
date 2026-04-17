@@ -25,6 +25,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('incidencias.nueva') }}">Reportar</a>
                     </li>
+                    {% if current_user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Administración</a>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -34,8 +35,19 @@
                             <li><a class="dropdown-item" href="{{ url_for('admin.areas') }}">
                                 <i class="bi bi-diagram-3 me-2"></i>Gestión de áreas
                             </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                            </a></li>
                         </ul>
                     </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">
+                            <i class="bi bi-lock me-1"></i>Admin
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

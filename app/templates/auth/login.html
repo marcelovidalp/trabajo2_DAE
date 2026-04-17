@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar sesión — Administración{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-sm-10 col-md-6 col-lg-4">
+        <div class="card shadow-sm mt-4">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-4 text-center">
+                    <i class="bi bi-lock-fill me-2"></i>Acceso de administrador
+                </h4>
+
+                <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next', '')) }}" novalidate>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Usuario</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            class="form-control"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-control"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

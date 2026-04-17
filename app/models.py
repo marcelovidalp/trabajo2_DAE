@@ -38,6 +38,7 @@ class Incidencia(db.Model):
 
     ESTADOS = ["abierta", "en_progreso", "resuelta", "cerrada"]
     PRIORIDADES = ["baja", "media", "alta", "critica"]
+    CATEGORIAS = ["hardware", "software", "red", "acceso", "seguridad", "otros"]
 
     def __repr__(self):
         return f"<Incidencia {self.id}: {self.titulo}>"
