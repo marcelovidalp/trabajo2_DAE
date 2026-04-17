@@ -58,6 +58,36 @@ def areas():
     return render_template("admin/areas.html", areas=todas)
 
 
+@admin_bp.route("/incidencias/<int:id>/estado", methods=["POST"])
+def actualizar_estado(id):
+    incidencia = Incidencia.query.get_or_404(id)
+    nuevo_estado = request.form.get("estado", "").strip()
+
+    if nuevo_estado not in Incidencia.ESTADOS:
+        flash(f"Estado '{nuevo_estado}' no es válido.", "danger")
+        return redirect(url_for("admin.panel"))
+
+    incidencia.estado = nuevo_estado
+    db.session.commit()
+    flash(f"Estado actualizado a '{nuevo_estado}'.", "success")
+    return redirect(url_for("admin.panel"))
+
+
+@admin_bp.route("/incidencias/<int:id>/prioridad", methods=["POST"])
+def actualizar_prioridad(id):
+    incidencia = Incidencia.query.get_or_404(id)
+    nueva_prioridad = request.form.get("prioridad", "").strip()
+
+    if nueva_prioridad not in Incidencia.PRIORIDADES:
+        flash(f"Prioridad '{nueva_prioridad}' no es válida.", "danger")
+        return redirect(url_for("admin.panel"))
+
+    incidencia.prioridad = nueva_prioridad
+    db.session.commit()
+    flash(f"Prioridad actualizada a '{nueva_prioridad}'.", "success")
+    return redirect(url_for("admin.panel"))
+
+
 @admin_bp.route("/areas/<int:id>/eliminar", methods=["POST"])
 @login_required
 def eliminar_area(id):
@@ -69,3 +99,4 @@ def eliminar_area(id):
         db.session.commit()
         flash(f"Area '{area.nombre}' eliminada.", "success")
     return redirect(url_for("admin.areas"))
+

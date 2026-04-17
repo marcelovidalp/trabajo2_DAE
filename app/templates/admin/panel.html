@@ -64,11 +64,23 @@
             <td>{{ inc.titulo }}</td>
             <td>{{ inc.categoria }}</td>
             <td>
-                <span class="badge bg-{% if inc.prioridad == 'critica' %}danger{% elif inc.prioridad == 'alta' %}warning text-dark{% elif inc.prioridad == 'media' %}info text-dark{% else %}secondary{% endif %}">
-                    {{ inc.prioridad }}
-                </span>
+                <form method="POST" action="{{ url_for('admin.actualizar_prioridad', id=inc.id) }}">
+                    <select name="prioridad" class="form-select form-select-sm" onchange="this.form.submit()">
+                        {% for p in prioridades %}
+                        <option value="{{ p }}" {% if inc.prioridad == p %}selected{% endif %}>{{ p|title }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
             </td>
-            <td>{{ inc.estado }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('admin.actualizar_estado', id=inc.id) }}">
+                    <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()">
+                        {% for e in estados %}
+                        <option value="{{ e }}" {% if inc.estado == e %}selected{% endif %}>{{ e|replace('_',' ')|title }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </td>
             <td>{{ inc.area.nombre if inc.area else '—' }}</td>
             <td>{{ inc.fecha_creacion.strftime('%d/%m/%Y') }}</td>
             <td class="text-end">
