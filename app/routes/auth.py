@@ -1,7 +1,15 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import UserMixin, login_user, logout_user, login_required
+from urllib.parse import urlparse, urljoin
 
 auth_bp = Blueprint("auth", __name__)
+
+
+def _is_safe_url(target):
+    """Valida que la URL de redirección sea relativa al mismo host (evita Open Redirect)."""
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ("http", "https") and ref_url.netloc == test_url.netloc
 
 
 class AdminUser(UserMixin):
@@ -36,7 +44,9 @@ def login():
         if username == expected_username and user.check_password(password):
             login_user(user)
             next_page = request.args.get("next")
-            return redirect(next_page or url_for("admin.panel"))
+            if next_page and _is_safe_url(next_page):
+                return redirect(next_page)
+            return redirect(url_for("admin.panel"))
 
         flash("Usuario o contraseña incorrectos.", "danger")
 

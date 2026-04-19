@@ -3,85 +3,207 @@
 {% block title %}Panel de Administración{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Panel de Administración</h2>
 
-<form method="GET" class="row g-2 mb-4">
-    <div class="col-md-2">
-        <select name="estado" class="form-select">
-            <option value="">Todos los estados</option>
-            {% for e in estados %}
-            <option value="{{ e }}" {% if request.args.get('estado') == e %}selected{% endif %}>{{ e|replace('_',' ')|title }}</option>
-            {% endfor %}
-        </select>
+<!-- Encabezado de página -->
+<div class="d-flex justify-content-between align-items-center mt-3 mb-4">
+    <div>
+        <h4 class="fw-bold mb-0">Panel de incidencias</h4>
+        <p class="text-muted small mb-0">Gestión y seguimiento de todas las incidencias registradas</p>
     </div>
-    <div class="col-md-2">
-        <select name="prioridad" class="form-select">
-            <option value="">Todas las prioridades</option>
-            {% for p in prioridades %}
-            <option value="{{ p }}" {% if request.args.get('prioridad') == p %}selected{% endif %}>{{ p|title }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-3">
-        <select name="categoria" class="form-select">
-            <option value="">Todas las categorías</option>
-            {% for c in categorias %}
-            <option value="{{ c }}" {% if request.args.get('categoria') == c %}selected{% endif %}>{{ c|capitalize }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-3">
-        <select name="area_id" class="form-select">
-            <option value="">Todas las áreas</option>
-            {% for a in areas %}
-            <option value="{{ a.id }}" {% if request.args.get('area_id') == a.id|string %}selected{% endif %}>{{ a.nombre }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-    </div>
-</form>
-
-{% if incidencias %}
-<div class="table-responsive">
-<table class="table table-hover align-middle">
-    <thead class="table-light">
-        <tr>
-            <th>#</th>
-            <th>Título</th>
-            <th>Categoría</th>
-            <th>Prioridad</th>
-            <th>Estado</th>
-            <th>Área</th>
-            <th>Fecha</th>
-            <th class="text-end">Acciones</th> </tr>
-    </thead>
-    <tbody>
-        {% for inc in incidencias %}
-        <tr>
-            <td>{{ inc.id }}</td>
-            <td>{{ inc.titulo }}</td>
-            <td>{{ inc.categoria }}</td>
-            <td>
-                <span class="badge bg-{% if inc.prioridad == 'critica' %}danger{% elif inc.prioridad == 'alta' %}warning text-dark{% elif inc.prioridad == 'media' %}info text-dark{% else %}secondary{% endif %}">
-                    {{ inc.prioridad }}
-                </span>
-            </td>
-            <td>{{ inc.estado }}</td>
-            <td>{{ inc.area.nombre if inc.area else '—' }}</td>
-            <td>{{ inc.fecha_creacion.strftime('%d/%m/%Y') }}</td>
-            <td class="text-end">
-                <a href="{{ url_for('incidencias.detalle', id=inc.id) }}" class="btn btn-sm btn-outline-primary" title="Ver detalle">
-                    <i class="bi bi-eye"></i> Ver
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <a href="{{ url_for('incidencias.nueva') }}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i>Nueva incidencia
+    </a>
 </div>
+
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-2-4">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-collection-fill"></i></div>
+            <div>
+                <p class="stat-label mb-1">Total</p>
+                <p class="stat-value">{{ stats.total }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2-4">
+        <div class="stat-card">
+            <div class="stat-icon yellow"><i class="bi bi-folder2-open"></i></div>
+            <div>
+                <p class="stat-label mb-1">Abiertas</p>
+                <p class="stat-value">{{ stats.abiertas }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2-4">
+        <div class="stat-card">
+            <div class="stat-icon slate"><i class="bi bi-arrow-repeat"></i></div>
+            <div>
+                <p class="stat-label mb-1">En progreso</p>
+                <p class="stat-value">{{ stats.en_progreso }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2-4">
+        <div class="stat-card">
+            <div class="stat-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div>
+                <p class="stat-label mb-1">Críticas</p>
+                <p class="stat-value">{{ stats.criticas }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2-4">
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
+            <div>
+                <p class="stat-label mb-1">Resueltas</p>
+                <p class="stat-value">{{ stats.resueltas }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="filter-bar mb-3">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-12">
+            <p class="form-section-title mb-2">Filtrar incidencias</p>
+        </div>
+        <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                {% for e in estados %}
+                <option value="{{ e }}" {% if request.args.get('estado') == e %}selected{% endif %}>
+                    {{ e|replace('_',' ')|title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label">Prioridad</label>
+            <select name="prioridad" class="form-select form-select-sm">
+                <option value="">Todas</option>
+                {% for p in prioridades %}
+                <option value="{{ p }}" {% if request.args.get('prioridad') == p %}selected{% endif %}>
+                    {{ p|title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label">Categoría</label>
+            <select name="categoria" class="form-select form-select-sm">
+                <option value="">Todas</option>
+                {% for c in categorias %}
+                <option value="{{ c }}" {% if request.args.get('categoria') == c %}selected{% endif %}>
+                    {{ c|capitalize }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label">Área</label>
+            <select name="area_id" class="form-select form-select-sm">
+                <option value="">Todas</option>
+                {% for a in areas %}
+                <option value="{{ a.id }}" {% if request.args.get('area_id') == a.id|string %}selected{% endif %}>
+                    {{ a.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-lg-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-sm px-3">
+                <i class="bi bi-funnel-fill me-1"></i>Aplicar filtros
+            </button>
+            {% if request.args %}
+            <a href="{{ url_for('admin.panel') }}" class="btn btn-outline-secondary btn-sm px-3">
+                <i class="bi bi-x-lg me-1"></i>Limpiar
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Tabla -->
+{% if incidencias %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-table me-2"></i>Resultados</span>
+        <span class="badge" style="background:#f1f5f9;color:#475569;font-weight:600;">{{ incidencias|length }} incidencia{{ 's' if incidencias|length != 1 }}</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table panel-table mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Categoría</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Área</th>
+                    <th>Fecha</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inc in incidencias %}
+                <tr>
+                    <td class="text-muted">#{{ inc.id }}</td>
+                    <td>
+                        <span class="inc-title" title="{{ inc.titulo }}">{{ inc.titulo }}</span>
+                        <span class="d-block text-muted" style="font-size:.75rem;">{{ inc.reportado_por }}</span>
+                    </td>
+                    <td>
+                        <span class="text-muted">{{ inc.categoria|capitalize }}</span>
+                    </td>
+                    <td>
+                        <span class="priority-badge badge-prioridad-{{ inc.prioridad }}">
+                            {{ inc.prioridad|title }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge badge-estado-{{ inc.estado }}">
+                            {{ inc.estado|replace('_',' ')|title }}
+                        </span>
+                    </td>
+                    <td class="text-muted">{{ inc.area.nombre if inc.area else '—' }}</td>
+                    <td class="text-muted" style="white-space:nowrap;">{{ inc.fecha_creacion.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <a href="{{ url_for('incidencias.detalle', id=inc.id) }}"
+                           class="btn btn-outline-primary btn-sm"
+                           title="Ver detalle">
+                            <i class="bi bi-arrow-right-circle"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 {% else %}
-<p class="text-muted">No hay incidencias que mostrar.</p>
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-inbox" style="font-size:3rem;color:#cbd5e1;"></i>
+        <h6 class="mt-3 fw-semibold text-muted">Sin incidencias</h6>
+        <p class="text-muted small mb-3">
+            {% if request.args %}
+                No hay incidencias que coincidan con los filtros aplicados.
+            {% else %}
+                Aún no se han registrado incidencias en el sistema.
+            {% endif %}
+        </p>
+        {% if request.args %}
+        <a href="{{ url_for('admin.panel') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-x-lg me-1"></i>Limpiar filtros
+        </a>
+        {% endif %}
+    </div>
+</div>
 {% endif %}
+
 {% endblock %}
