@@ -63,6 +63,74 @@ def actualizar_incidencia(id):
     return redirect(url_for("incidencias.detalle", id=id))
 
 
+@admin_bp.route("/incidencias/<int:id>/editar", methods=["GET", "POST"])
+@login_required
+def editar_incidencia(id):
+    incidencia = Incidencia.query.get_or_404(id)
+    areas = Area.query.order_by(Area.nombre).all()
+
+    if request.method == "POST":
+        titulo = request.form.get("titulo", "").strip()
+        descripcion = request.form.get("descripcion", "").strip()
+        categoria = request.form.get("categoria", "").strip()
+        prioridad = request.form.get("prioridad", "").strip()
+        estado = request.form.get("estado", "").strip()
+        reportado_por = request.form.get("reportado_por", "").strip()
+        email_reportante = request.form.get("email_reportante", "").strip()
+        area_id = request.form.get("area_id") or None
+
+        if not titulo or not descripcion or not reportado_por or not email_reportante:
+            flash("Los campos título, descripción, nombre y correo son obligatorios.", "danger")
+            return render_template(
+                "incidencias/editar.html",
+                incidencia=incidencia,
+                areas=areas,
+                categorias=Incidencia.CATEGORIAS,
+                estados=Incidencia.ESTADOS,
+                prioridades=Incidencia.PRIORIDADES,
+            )
+
+        incidencia.titulo = titulo
+        incidencia.descripcion = descripcion
+        if categoria in Incidencia.CATEGORIAS:
+            incidencia.categoria = categoria
+        if prioridad in Incidencia.PRIORIDADES:
+            incidencia.prioridad = prioridad
+        if estado in Incidencia.ESTADOS:
+            incidencia.estado = estado
+        incidencia.reportado_por = reportado_por
+        incidencia.email_reportante = email_reportante
+        incidencia.area_id = int(area_id) if area_id else None
+        if area_id:
+            area = Area.query.get(int(area_id))
+            incidencia.responsable_email = area.email_responsable if area else None
+        else:
+            incidencia.responsable_email = None
+
+        db.session.commit()
+        flash("Incidencia actualizada correctamente.", "success")
+        return redirect(url_for("incidencias.detalle", id=id))
+
+    return render_template(
+        "incidencias/editar.html",
+        incidencia=incidencia,
+        areas=areas,
+        categorias=Incidencia.CATEGORIAS,
+        estados=Incidencia.ESTADOS,
+        prioridades=Incidencia.PRIORIDADES,
+    )
+
+
+@admin_bp.route("/incidencias/<int:id>/eliminar", methods=["POST"])
+@login_required
+def eliminar_incidencia(id):
+    incidencia = Incidencia.query.get_or_404(id)
+    db.session.delete(incidencia)
+    db.session.commit()
+    flash(f"Incidencia #{id} eliminada correctamente.", "success")
+    return redirect(url_for("admin.panel"))
+
+
 @admin_bp.route("/areas", methods=["GET", "POST"])
 @login_required
 def areas():

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Editar incidencia #{{ incidencia.id }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+    <div class="col-lg-8">
+
+        <!-- Encabezado -->
+        <div class="mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('main.index') }}" class="text-decoration-none text-muted">Inicio</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('admin.panel') }}" class="text-decoration-none text-muted">Panel</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('incidencias.detalle', id=incidencia.id) }}" class="text-decoration-none text-muted">Incidencia #{{ incidencia.id }}</a>
+                    </li>
+                    <li class="breadcrumb-item active text-muted">Editar</li>
+                </ol>
+            </nav>
+            <h4 class="fw-bold mb-1">Editar incidencia #{{ incidencia.id }}</h4>
+            <p class="text-muted small mb-0">Modifique los campos necesarios y guarde los cambios.</p>
+        </div>
+
+        <form method="POST">
+
+            <!-- Sección 1: Descripción -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="bi bi-file-text me-2 text-primary"></i>Descripción de la incidencia
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Título <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="titulo"
+                            class="form-control"
+                            placeholder="Resumen breve del problema"
+                            maxlength="200"
+                            value="{{ incidencia.titulo }}"
+                            required
+                        >
+                        <div class="form-text">Sea específico: qué falló, dónde y cuándo.</div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">
+                            Descripción detallada <span class="text-danger">*</span>
+                        </label>
+                        <textarea
+                            name="descripcion"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Describa el problema con detalle..."
+                            required
+                        >{{ incidencia.descripcion }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 2: Clasificación y estado -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="bi bi-tag me-2 text-primary"></i>Clasificación y estado
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Categoría <span class="text-danger">*</span></label>
+                            <select name="categoria" class="form-select" required>
+                                {% for c in categorias %}
+                                <option value="{{ c }}" {% if incidencia.categoria == c %}selected{% endif %}>
+                                    {{ c|capitalize }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Prioridad</label>
+                            <select name="prioridad" class="form-select">
+                                {% for p in prioridades %}
+                                <option value="{{ p }}" {% if incidencia.prioridad == p %}selected{% endif %}>
+                                    {{ p|title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Estado</label>
+                            <select name="estado" class="form-select">
+                                {% for e in estados %}
+                                <option value="{{ e }}" {% if incidencia.estado == e %}selected{% endif %}>
+                                    {{ e|replace('_',' ')|title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Área responsable</label>
+                            <select name="area_id" class="form-select">
+                                <option value="">— Sin asignar —</option>
+                                {% for area in areas %}
+                                <option value="{{ area.id }}" {% if incidencia.area_id == area.id %}selected{% endif %}>
+                                    {{ area.nombre }} &mdash; {{ area.email_responsable }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 3: Datos del reportante -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-person me-2 text-primary"></i>Datos del reportante
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre completo <span class="text-danger">*</span></label>
+                            <input
+                                type="text"
+                                name="reportado_por"
+                                class="form-control"
+                                value="{{ incidencia.reportado_por }}"
+                                required
+                            >
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Correo electrónico <span class="text-danger">*</span></label>
+                            <input
+                                type="email"
+                                name="email_reportante"
+                                class="form-control"
+                                value="{{ incidencia.email_reportante }}"
+                                required
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('incidencias.detalle', id=incidencia.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-save me-2"></i>Guardar cambios
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -172,11 +172,52 @@
                     <td class="text-muted">{{ inc.area.nombre if inc.area else '—' }}</td>
                     <td class="text-muted" style="white-space:nowrap;">{{ inc.fecha_creacion.strftime('%d/%m/%Y') }}</td>
                     <td>
-                        <a href="{{ url_for('incidencias.detalle', id=inc.id) }}"
-                           class="btn btn-outline-primary btn-sm"
-                           title="Ver detalle">
-                            <i class="bi bi-arrow-right-circle"></i>
-                        </a>
+                        <div class="d-flex gap-1">
+                            <a href="{{ url_for('incidencias.detalle', id=inc.id) }}"
+                               class="btn btn-outline-primary btn-sm"
+                               title="Ver detalle">
+                                <i class="bi bi-arrow-right-circle"></i>
+                            </a>
+                            <a href="{{ url_for('admin.editar_incidencia', id=inc.id) }}"
+                               class="btn btn-outline-secondary btn-sm"
+                               title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button"
+                                    class="btn btn-outline-danger btn-sm"
+                                    title="Eliminar"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEliminar{{ inc.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+
+                        <!-- Modal de confirmación -->
+                        <div class="modal fade" id="modalEliminar{{ inc.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header border-0">
+                                        <h5 class="modal-title fw-bold">
+                                            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Eliminar incidencia
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="mb-1">¿Está seguro de que desea eliminar la incidencia <strong>#{{ inc.id }}</strong>?</p>
+                                        <p class="text-muted small mb-0">«{{ inc.titulo }}»</p>
+                                        <p class="text-danger small mt-2 mb-0">Esta acción no se puede deshacer.</p>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <form method="POST" action="{{ url_for('admin.eliminar_incidencia', id=inc.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="bi bi-trash me-1"></i>Eliminar definitivamente
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
