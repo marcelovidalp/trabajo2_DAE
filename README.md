@@ -209,10 +209,62 @@ La aplicación estará disponible en `http://localhost:5000`.
 
 ## Despliegue en Railway
 
-1. Crear un nuevo proyecto en [railway.app](https://railway.app) y conectar este repositorio.
-2. Agregar un servicio de **PostgreSQL** desde el panel — Railway inyecta `DATABASE_URL` automáticamente.
-3. Configurar `SECRET_KEY`, `MAIL_USERNAME` y `MAIL_PASSWORD` en las variables de entorno del proyecto.
-4. Railway detecta el `Procfile` y ejecuta `gunicorn run:app` en cada deploy.
+### Prerequisitos
+- Cuenta en [railway.app](https://railway.app)
+- Repositorio conectado a GitHub
+- PostgreSQL configurado en Railway
+
+### Pasos de despliegue
+
+1. **Crear proyecto en Railway** → Conectar repositorio GitHub
+   
+2. **Agregar servicio PostgreSQL**
+   - En Railway dashboard: `+ Create` → `Database` → `PostgreSQL`
+   - Railway inyecta automáticamente `DATABASE_URL` en las variables de entorno
+
+3. **Configurar variables de entorno en Railway**
+   - `FLASK_ENV` = `production`
+   - `SECRET_KEY` = [Genera una clave segura]
+   - `ADMIN_USERNAME` = `admin`
+   - `ADMIN_PASSWORD` = [Contraseña segura]
+   - `MAIL_USERNAME` = [Tu email de Gmail] (opcional)
+   - `MAIL_PASSWORD` = [App Password de Gmail] (opcional)
+
+4. **Deploy automático**
+   - Railway detecta `Procfile` automáticamente
+   - La línea `release: python init_db.py` ejecuta la inicialización de BD **antes** de gunicorn
+   - Las tablas se crean automáticamente en tu PostgreSQL
+
+### Verificación post-despliegue
+
+Prueba estos endpoints en tu aplicación deployada:
+- `https://tu-app.railway.app/` → Página de inicio
+- `https://tu-app.railway.app/health` → `{"status": "ok"}`
+- `https://tu-app.railway.app/incidencias/nueva` → Formulario de incidencia
+
+### Solucionar errores comunes
+
+| Error | Causa | Solución |
+|---|---|---|
+| 500 Internal Server Error | BD no inicializada | Verifica logs en Railway y que `DATABASE_URL` esté configurada |
+| `ADMIN_PASSWORD not configured` | Variable de entorno faltante | Agrega `ADMIN_PASSWORD` en Railway y redeploy |
+| Connection to PostgreSQL failed | PostgreSQL no está online | Verifica que el servicio PostgreSQL esté corriendo en Railway |
+| Emails no se envían | Variables de mail no configuradas | Es opcional — solo agrega si necesitas email |
+
+Para ver los logs detallados de error, ve a tu proyecto en Railway → **Deployments** → **Logs**
+
+---
+
+### Cambios realizados para Railway
+
+Se realizaron las siguientes mejoras para garantizar un deployment exitoso:
+
+- ✅ Nuevo archivo `init_db.py` — Inicializa la BD automáticamente
+- ✅ `Procfile` actualizado — Incluye comando `release` para ejecutar init_db antes de gunicorn
+- ✅ `run.py` mejorado — Respeta variables `PORT` y `FLASK_ENV` para producción
+- ✅ Error handling mejorado — Manejo de errores 500 y 404 con información útil
+- ✅ `.env.example` — Referencia de todas las variables necesarias
+- ✅ `RAILWAY_DEPLOYMENT.md` — Guía detallada de deployment específica para Railway
 
 ---
 

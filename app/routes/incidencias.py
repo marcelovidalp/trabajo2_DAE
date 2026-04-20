@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from app import db, mail
 from app.models import Incidencia, Area
 from flask_login import login_required
@@ -8,8 +8,9 @@ incidencias_bp = Blueprint("incidencias", __name__)
 
 
 def _enviar_notificaciones(incidencia):
-    """Envía emails de confirmación al reportante y alerta al responsable del área.
-    Silencia excepciones para no interrumpir el flujo principal si el mail falla."""
+    """Envía notificaciones por email. Registra errores en logs."""
+    
+    # Email al reportante
     try:
         mail.send_message(
             subject=f"[Incidencias] #{incidencia.id} recibida — {incidencia.titulo}",
@@ -27,9 +28,10 @@ def _enviar_notificaciones(incidencia):
                 f"Sistema de Incidencias Empresariales"
             ),
         )
-    except Exception:
-        pass
+    except Exception as e:
+        current_app.logger.warning(f"No se pudo enviar email al reportante: {str(e)}")
 
+    # Email al responsable del área
     if incidencia.responsable_email:
         try:
             mail.send_message(
@@ -47,8 +49,8 @@ def _enviar_notificaciones(incidencia):
                     f"Sistema de Incidencias Empresariales"
                 ),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            current_app.logger.warning(f"No se pudo enviar email al responsable: {str(e)}")
 
 
 @incidencias_bp.route("/nueva", methods=["GET", "POST"])
